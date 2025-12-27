@@ -1,0 +1,93 @@
+########################################
+# Python / Virtualenv / Bytecode
+########################################
+.venv/
+venv/
+ENV/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+.ipynb_checkpoints/
+
+########################################
+# OS / Editor / IDE
+########################################
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+.vscode/
+.idea/
+*.swp
+*.swo
+
+########################################
+# Logs / temp
+########################################
+*.log
+*.tmp
+*.temp
+
+########################################
+# Secrets (never commit)
+########################################
+.env
+.env.*
+*.pem
+*.key
+*.pfx
+*.crt
+
+########################################
+# Build / packaging
+########################################
+build/
+dist/
+*.egg-info/
+pip-wheel-metadata/
+
+########################################
+# Project: generated outputs (IMPORTANT)
+########################################
+# Always ignore the big DB + generated artifacts
+outputs/models/*.sqlite
+outputs/models/*.db
+outputs/models/*.parquet
+
+# If your outputs are all generated (recommended):
+outputs/figures/
+outputs/logs/
+outputs/results/
+
+# If models are generated (recommended):
+outputs/models/*.pkl
+
+########################################
+# Project: processed data (usually generated)
+########################################
+data/processed/
+*.parquet
+
+########################################
+# Optional: if you later add large datasets
+########################################
+*.zip
+*.7z
+*.tar
+*.gz
+*.rar
+.venv/
+__pycache__/
+*.pyc
+
+# Generated / heavy artifacts
+outputs/models/
+outputs/**/*.sqlite
+
