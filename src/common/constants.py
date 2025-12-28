@@ -21,3 +21,7 @@ MODELS_DIR = OUTPUTS_DIR / "models"
 RESULTS_DIR = OUTPUTS_DIR / "results"
 
 DEFAULT_TRUST_GRAPH_DB = MODELS_DIR / "trust_graph.sqlite"
+
+# Features
+DEFAULT_FEATURES_PARQUET = PROCESSED_DIR / "features.parquet"
+DEFAULT_FEATURES_CSV = PROCESSED_DIR / "features.csv"
