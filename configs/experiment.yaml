@@ -1,0 +1,21 @@
+# Experiment configuration (AFO-ZT prototype)
+# Step 2.5: risk fusion weights + IsolationForest settings
+
+iforest:
+  n_estimators: 200
+  max_samples: 0.8
+  contamination: 0.02
+  random_state: 42
+
+fusion:
+  w_anom: 1.20
+  w_rule: 1.00
+  w_graph: 1.15
+  bias: -0.40
+
+decision_thresholds:
+  allow: 0.30
+  stepup: 0.60
+  restrict: 0.80
+  deny: 0.90
+  min_conf_for_hard_actions: 0.60

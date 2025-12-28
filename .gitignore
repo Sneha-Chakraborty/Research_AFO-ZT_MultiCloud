@@ -1,24 +1,41 @@
-########################################
-# Python / Virtualenv / Bytecode
-########################################
+############################################
+# Python / venv
+############################################
 .venv/
 venv/
 ENV/
 env/
+
 __pycache__/
 *.py[cod]
 *$py.class
+
 .pytest_cache/
-.mypy_cache/
-.ruff_cache/
 .coverage
 coverage.xml
 htmlcov/
+
+.mypy_cache/
+.pytype/
+.ruff_cache/
+
+dist/
+build/
+*.egg-info/
+.eggs/
+
 .ipynb_checkpoints/
 
-########################################
-# OS / Editor / IDE
-########################################
+############################################
+# Logs / temp
+############################################
+*.log
+*.tmp
+*.bak
+
+############################################
+# OS / Editor
+############################################
 .DS_Store
 Thumbs.db
 Desktop.ini
@@ -26,68 +43,52 @@ Desktop.ini
 .vscode/
 .idea/
 *.swp
-*.swo
 
-########################################
-# Logs / temp
-########################################
-*.log
-*.tmp
-*.temp
-
-########################################
-# Secrets (never commit)
-########################################
+############################################
+# Secrets (keep your real secrets OUT of git)
+############################################
 .env
 .env.*
 *.pem
 *.key
+*.p12
 *.pfx
-*.crt
 
-########################################
-# Build / packaging
-########################################
-build/
-dist/
-*.egg-info/
-pip-wheel-metadata/
-
-########################################
-# Project: generated outputs (IMPORTANT)
-########################################
-# Always ignore the big DB + generated artifacts
-outputs/models/*.sqlite
-outputs/models/*.db
-outputs/models/*.parquet
-
-# If your outputs are all generated (recommended):
-outputs/figures/
-outputs/logs/
-outputs/results/
-
-# If models are generated (recommended):
-outputs/models/*.pkl
-
-########################################
-# Project: processed data (usually generated)
-########################################
+############################################
+# Project-specific: data artifacts
+# (keep schemas/docs, ignore raw + processed datasets by default)
+############################################
+data/raw/
 data/processed/
-*.parquet
 
-########################################
-# Optional: if you later add large datasets
-########################################
-*.zip
-*.7z
-*.tar
-*.gz
-*.rar
-.venv/
-__pycache__/
-*.pyc
+!data/schemas/
+!data/schemas/**
 
-# Generated / heavy artifacts
+############################################
+# Project-specific: outputs (models/logs/figures)
+# Keep results (CSV/JSON) in git, ignore heavy generated artifacts.
+############################################
+outputs/*
+!outputs/results/
+!outputs/results/**
+
+# Models/artifacts should NOT be in git (they can be regenerated)
 outputs/models/
-outputs/**/*.sqlite
+outputs/models/*.pkl
+outputs/models/*.joblib
+outputs/models/*.onnx
+outputs/models/*.pt
+outputs/models/*.pth
 
+# SQLite can become huge + WAL/SHM files appear
+outputs/models/*.sqlite
+outputs/models/*.sqlite-wal
+outputs/models/*.sqlite-shm
+outputs/models/*.db
+
+# (Optional) if you want to keep just the manifest json
+!outputs/models/*.manifest.json
+
+# Logs/figures are generated
+outputs/logs/
+outputs/figures/

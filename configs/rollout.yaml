@@ -1,0 +1,5 @@
+# Placeholder for Step 2.7 safe rollout controller
+shadow_days: 7
+canary_fraction: 0.05
+false_deny_budget: 0.02
+mfa_friction_budget: 0.10

@@ -1,0 +1,8 @@
+# Thresholds used in Step 2.5 rule scoring (interpretable heuristics)
+
+failed_logins_5m: 3.0
+bytes_spike_score: 2.5
+posture_drift: 0.25
+new_resource_rate_win: 1.0
+shortest_sensitive_hops: 2
+blast_radius_k: 15
