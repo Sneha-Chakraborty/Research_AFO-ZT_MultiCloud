@@ -25,7 +25,3 @@ DEFAULT_TRUST_GRAPH_DB = MODELS_DIR / "trust_graph.sqlite"
 # Features
 DEFAULT_FEATURES_PARQUET = PROCESSED_DIR / "features.parquet"
 DEFAULT_FEATURES_CSV = PROCESSED_DIR / "features.csv"
-
-# Step 2.5 outputs
-DEFAULT_AFOZT_MODEL = MODELS_DIR / "afozt_unified.pkl"
-DEFAULT_AFOZT_SCORES_CSV = RESULTS_DIR / "afozt_scores.csv"

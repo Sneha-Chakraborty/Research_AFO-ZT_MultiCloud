@@ -8,30 +8,35 @@ import numpy as np
 
 @dataclass
 class QuantileCalibrator:
-    """Map raw anomaly magnitudes to calibrated [0,1] via empirical CDF.
+    """Calibrate a 1D array to [0, 1] using an empirical CDF.
 
-    This keeps Step 2.5 explainable and robust across datasets, without requiring labels.
-
-    fit(): stores sorted scores from training.
-    transform(): returns percentile rank in [0,1].
+    Used in Step 2.5 to map IsolationForest anomaly magnitudes (unbounded)
+    into a stable probability-like score.
     """
 
-    sorted_scores_: Optional[np.ndarray] = None
+    ref_sorted_: Optional[np.ndarray] = None
 
-    def fit(self, scores: np.ndarray) -> None:
-        s = np.asarray(scores, dtype=float)
-        s = s[np.isfinite(s)]
-        if s.size == 0:
-            self.sorted_scores_ = np.array([0.0], dtype=float)
-            return
-        self.sorted_scores_ = np.sort(s)
+    def fit(self, x: np.ndarray) -> None:
+        arr = np.asarray(x, dtype=float)
+        arr = arr[np.isfinite(arr)]
+        if arr.size == 0:
+            arr = np.array([0.0], dtype=float)
+        self.ref_sorted_ = np.sort(arr)
 
-    def transform(self, scores: np.ndarray) -> np.ndarray:
-        if self.sorted_scores_ is None:
-            raise RuntimeError("QuantileCalibrator not fit yet.")
-        ref = self.sorted_scores_
-        s = np.asarray(scores, dtype=float)
-        # rank = number of ref <= s
-        ranks = np.searchsorted(ref, s, side="right").astype(float)
-        pct = ranks / float(max(1, ref.size))
-        return np.clip(pct, 0.0, 1.0)
+    def transform(self, x: np.ndarray) -> np.ndarray:
+        if self.ref_sorted_ is None:
+            raise RuntimeError("QuantileCalibrator is not fit yet.")
+        ref = self.ref_sorted_
+        arr = np.asarray(x, dtype=float)
+        out = np.zeros_like(arr, dtype=float)
+        mask = np.isfinite(arr)
+        if mask.any():
+            idx = np.searchsorted(ref, arr[mask], side="right")
+            out[mask] = idx / float(max(1, ref.size))
+        # Non-finite values map to low score
+        out[~mask] = 0.0
+        return np.clip(out, 0.0, 1.0)
+
+    def fit_transform(self, x: np.ndarray) -> np.ndarray:
+        self.fit(x)
+        return self.transform(x)

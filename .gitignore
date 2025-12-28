@@ -1,94 +1,157 @@
-############################################
-# Python / venv
-############################################
-.venv/
-venv/
-ENV/
-env/
+################################################################################
+# Research_AFO-ZT_MultiCloud - .gitignore
+# Goal: keep source/config/docs tracked; ignore environments, caches, outputs,
+# large models/DBs, and generated datasets/results.
+################################################################################
 
-__pycache__/
-*.py[cod]
-*$py.class
-
-.pytest_cache/
-.coverage
-coverage.xml
-htmlcov/
-
-.mypy_cache/
-.pytype/
-.ruff_cache/
-
-dist/
-build/
-*.egg-info/
-.eggs/
-
-.ipynb_checkpoints/
-
-############################################
-# Logs / temp
-############################################
-*.log
-*.tmp
-*.bak
-
-############################################
-# OS / Editor
-############################################
+# -------------------------
+# OS junk
+# -------------------------
 .DS_Store
 Thumbs.db
 Desktop.ini
 
-.vscode/
+# -------------------------
+# Editor / IDE
+# -------------------------
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
 .idea/
-*.swp
+*.code-workspace
 
-############################################
-# Secrets (keep your real secrets OUT of git)
-############################################
+# -------------------------
+# Python bytecode / caches
+# -------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+
+# -------------------------
+# Virtual environments
+# -------------------------
+.venv/
+venv/
+env/
+ENV/
+.conda/
+.python-version
+
+# -------------------------
+# Packaging / build
+# -------------------------
+build/
+dist/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+
+# -------------------------
+# Test / coverage / typecheck caches
+# -------------------------
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.pyre/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+.hypothesis/
+.cache/
+
+# -------------------------
+# Jupyter
+# -------------------------
+.ipynb_checkpoints/
+*.ipynb
+
+# -------------------------
+# Secrets / local env files
+# -------------------------
 .env
 .env.*
 *.pem
 *.key
-*.p12
+*.crt
 *.pfx
 
-############################################
-# Project-specific: data artifacts
-# (keep schemas/docs, ignore raw + processed datasets by default)
-############################################
-data/raw/
-data/processed/
+# -------------------------
+# Logs (anywhere)
+# -------------------------
+*.log
+*.log.*
+logs/
+**/logs/
 
+# -------------------------
+# Project-generated DATA (keep schemas/docs tracked)
+# -------------------------
+data/processed/
+data/processed/**
+
+# If you generate more raw datasets locally, ignore them by default:
+# (Uncomment next two lines if your raw data is large and you don't want it in git)
+# data/raw/
+# data/raw/**
+
+# Always keep schemas / docs inside data
 !data/schemas/
 !data/schemas/**
+!data/schemas/**/*.md
 
-############################################
-# Project-specific: outputs (models/logs/figures)
-# Keep results (CSV/JSON) in git, ignore heavy generated artifacts.
-############################################
-outputs/*
-!outputs/results/
-!outputs/results/**
+# -------------------------
+# Outputs: figures/logs/models/results (generated)
+# -------------------------
+outputs/
+outputs/**
 
-# Models/artifacts should NOT be in git (they can be regenerated)
+# If you want to keep empty folders in git, you can add placeholder files:
+!outputs/.gitkeep
+!outputs/**/.gitkeep
+
+# -------------------------
+# ML / model artifacts (ignore everywhere)
+# -------------------------
+*.pkl
+*.joblib
+*.pickle
+*.pt
+*.pth
+*.onnx
+*.h5
+*.hdf5
+*.model
+*.bin
+
+# -------------------------
+# Databases / graph stores (THIS fixes trust_graph.sqlite issue)
+# -------------------------
+*.sqlite
+*.sqlite3
+*.db
+*.duckdb
+*-wal
+*-shm
+
+# Extra-safe: explicitly ignore your known generated model/db locations
 outputs/models/
-outputs/models/*.pkl
-outputs/models/*.joblib
-outputs/models/*.onnx
-outputs/models/*.pt
-outputs/models/*.pth
-
-# SQLite can become huge + WAL/SHM files appear
-outputs/models/*.sqlite
-outputs/models/*.sqlite-wal
-outputs/models/*.sqlite-shm
-outputs/models/*.db
-
-# (Optional) if you want to keep just the manifest json
-!outputs/models/*.manifest.json
-
-# Logs/figures are generated
-outputs/logs/
+outputs/models/**
+outputs/results/
+outputs/results/**
 outputs/figures/
+outputs/figures/**
+outputs/logs/
+outputs/logs/**
+
+# -------------------------
+# Data file types that can get large (ignore by default)
+# -------------------------
+*.parquet
+*.feather
+
+# If you want to keep a small sample CSV in git, do NOT ignore *.csv globally.
+# (Your project already has CSVs in data/processed and outputs/results, which are ignored above.)
