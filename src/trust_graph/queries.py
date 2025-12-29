@@ -56,9 +56,9 @@ def top_risky_edges(store: TrustGraphSQLite, limit: int = 20) -> List[Dict[str, 
     rows = cur.execute(
         """
         SELECT
-            src_id, dst_id, edge_type, cloud_provider,
-            deny_count, attack_count, bytes_out_sum,
-            event_count, last_seen, attrs_json
+          src_id, dst_id, edge_type, cloud_provider,
+          deny_count, attack_count, bytes_out_sum,
+          event_count, last_seen, attrs_json
         FROM edges_agg
         ORDER BY (deny_count + 2*attack_count + (CASE WHEN bytes_out_sum > 0 THEN (ln(1 + bytes_out_sum / 1000000.0)) ELSE 0 END)) DESC
         LIMIT ?;

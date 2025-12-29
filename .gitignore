@@ -1,157 +1,126 @@
-################################################################################
-# Research_AFO-ZT_MultiCloud - .gitignore
-# Goal: keep source/config/docs tracked; ignore environments, caches, outputs,
-# large models/DBs, and generated datasets/results.
-################################################################################
-
-# -------------------------
-# OS junk
-# -------------------------
-.DS_Store
-Thumbs.db
-Desktop.ini
-
-# -------------------------
-# Editor / IDE
-# -------------------------
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-.idea/
-*.code-workspace
-
-# -------------------------
-# Python bytecode / caches
-# -------------------------
+############################################
+# Python / Virtualenv
+############################################
 __pycache__/
 *.py[cod]
 *$py.class
 
-# -------------------------
 # Virtual environments
-# -------------------------
 .venv/
 venv/
 env/
 ENV/
-.conda/
-.python-version
 
-# -------------------------
-# Packaging / build
-# -------------------------
+# Python tooling caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.pytype/
+.pyre/
+.cache/
+pip-wheel-metadata/
+
+# Coverage / reports
+.coverage
+.coverage.*
+htmlcov/
+*.cover
+*.py,cover
+
+############################################
+# Jupyter (if you ever use notebooks)
+############################################
+.ipynb_checkpoints/
+
+############################################
+# Build / packaging
+############################################
 build/
 dist/
 *.egg-info/
 .eggs/
-pip-wheel-metadata/
+wheelhouse/
 
-# -------------------------
-# Test / coverage / typecheck caches
-# -------------------------
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-.pyre/
-.coverage
-.coverage.*
-htmlcov/
-.tox/
-.nox/
-.hypothesis/
-.cache/
+############################################
+# OS / Editor junk
+############################################
+.DS_Store
+Thumbs.db
+Desktop.ini
 
-# -------------------------
-# Jupyter
-# -------------------------
-.ipynb_checkpoints/
-*.ipynb
+# VS Code (keep only commonly-shared config files)
+.vscode/*
+!.vscode/settings.json
+!.vscode/launch.json
+!.vscode/tasks.json
+!.vscode/extensions.json
 
-# -------------------------
-# Secrets / local env files
-# -------------------------
+# JetBrains
+.idea/
+
+############################################
+# Secrets / local config
+############################################
 .env
 .env.*
 *.pem
 *.key
-*.crt
+*.p12
 *.pfx
 
-# -------------------------
-# Logs (anywhere)
-# -------------------------
+############################################
+# Logs (general)
+############################################
 *.log
-*.log.*
 logs/
-**/logs/
+outputs/logs/
 
-# -------------------------
-# Project-generated DATA (keep schemas/docs tracked)
-# -------------------------
+############################################
+# Data artifacts (generated)
+############################################
+# Processed data is reproducible from scripts
 data/processed/
-data/processed/**
 
-# If you generate more raw datasets locally, ignore them by default:
-# (Uncomment next two lines if your raw data is large and you don't want it in git)
-# data/raw/
-# data/raw/**
+# Raw datasets can be large; ignore by default.
+# If you WANT to commit raw data, delete the next line.
+data/raw/*
 
-# Always keep schemas / docs inside data
+# Keep schemas/docs tracked
 !data/schemas/
 !data/schemas/**
-!data/schemas/**/*.md
 
-# -------------------------
-# Outputs: figures/logs/models/results (generated)
-# -------------------------
-outputs/
-outputs/**
+############################################
+# Model / binary artifacts (avoid GitHub 100MB limit)
+############################################
+# Your repo generates large models + sqlite DB files here
+outputs/models/
 
-# If you want to keep empty folders in git, you can add placeholder files:
-!outputs/.gitkeep
-!outputs/**/.gitkeep
+# Also ignore sqlite + WAL/SHM anywhere (safety)
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+*.db
+*.db-wal
+*.db-shm
 
-# -------------------------
-# ML / model artifacts (ignore everywhere)
-# -------------------------
+# Common ML serialization artifacts anywhere
 *.pkl
 *.joblib
 *.pickle
-*.pt
-*.pth
-*.onnx
-*.h5
-*.hdf5
-*.model
-*.bin
-
-# -------------------------
-# Databases / graph stores (THIS fixes trust_graph.sqlite issue)
-# -------------------------
-*.sqlite
-*.sqlite3
-*.db
-*.duckdb
-*-wal
-*-shm
-
-# Extra-safe: explicitly ignore your known generated model/db locations
-outputs/models/
-outputs/models/**
-outputs/results/
-outputs/results/**
-outputs/figures/
-outputs/figures/**
-outputs/logs/
-outputs/logs/**
-
-# -------------------------
-# Data file types that can get large (ignore by default)
-# -------------------------
 *.parquet
-*.feather
 
-# If you want to keep a small sample CSV in git, do NOT ignore *.csv globally.
-# (Your project already has CSVs in data/processed and outputs/results, which are ignored above.)
+############################################
+# Experiment outputs (keep small summaries if you want)
+############################################
+outputs/figures/
+
+# JSONL can grow fast (keep CSV/JSON summaries if needed)
+outputs/results/*.jsonl
+
+############################################
+# Misc temp files
+############################################
+*.tmp
+*.swp
+*.swo
+*~

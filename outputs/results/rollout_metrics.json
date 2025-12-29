@@ -1,0 +1,11 @@
+{
+  "shadow": {
+    "n_events": 25044,
+    "enforced_fraction": 1.0,
+    "false_deny_rate": 0.0,
+    "mfa_friction_rate": 0.04615876058137678,
+    "latency_p95_ms": 459.8482954280499,
+    "policy_error_rate": 0.004911356013416387,
+    "analyst_override_rate": 0.9477719214183038
+  }
+}
