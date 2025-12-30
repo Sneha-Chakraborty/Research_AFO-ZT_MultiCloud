@@ -28,4 +28,3 @@ latency_p95_budget_ms: 600       # p95 latency after simulated overhead
 error_rate_budget: 0.01          # simulated policy-induced unexpected errors
 # analyst_override_budget: 0.10    # severe + low-confidence rate
 analyst_override_budget: 0.30
-

@@ -39,3 +39,12 @@ def parse_ts(series: pd.Series) -> pd.Series:
     """Parse timestamps to pandas datetime64[ns] (UTC-naive)."""
     # The synthetic dataset uses 'YYYY-MM-DD HH:MM:SS'
     return pd.to_datetime(series, errors="coerce")
+
+
+from pathlib import Path
+from src.common.constants import LOGS_DIR, MODELS_DIR, RESULTS_DIR, PROCESSED_DIR, OUTPUTS_DIR
+
+def ensure_dirs() -> None:
+    """Create standard output directories if missing."""
+    for p in [OUTPUTS_DIR, LOGS_DIR, MODELS_DIR, RESULTS_DIR, PROCESSED_DIR]:
+        Path(p).mkdir(parents=True, exist_ok=True)

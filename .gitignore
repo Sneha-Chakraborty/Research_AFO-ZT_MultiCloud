@@ -1,62 +1,86 @@
-# ========= Python =========
-__pycache__/
-*.py[cod]
-*.pyd
-*.so
-*.dll
-*.dylib
-
-# Virtual environments
-.venv/
-venv/
-env/
-
-# Packaging / build
-build/
-dist/
-*.egg-info/
-.eggs/
-
-# Test / type / lint caches
-.pytest_cache/
-.coverage
-htmlcov/
-.mypy_cache/
-.ruff_cache/
-.tox/
-.nox/
-
-# Jupyter
-.ipynb_checkpoints/
-
-# ========= OS / Editor =========
+# =========================
+# OS / Editor junk
+# =========================
 .DS_Store
 Thumbs.db
 Desktop.ini
 
 .vscode/
 .idea/
+*.swp
+*.swo
+*~
 
-# ========= Project generated artifacts =========
-# Never commit generated outputs (can contain huge files)
-outputs/
+# =========================
+# Secrets / local config
+# =========================
+.env
+.env.*
+!.env.example
 
-# Processed data is generated
+# =========================
+# Python / build artifacts
+# =========================
+__pycache__/
+*.py[cod]
+*.pyd
+*.so
+
+build/
+dist/
+*.egg-info/
+.eggs/
+
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# =========================
+# Virtual environments
+# =========================
+.venv/
+venv/
+env/
+
+# =========================
+# Data artifacts (generated)
+# =========================
 data/processed/
 
-# Local logs
-*.log
-logs/
+# If your raw dataset is large and you don't want it in Git, keep this ON.
+# If you DO want the raw CSV committed, delete the next line.
+data/raw/*.csv
 
-# Model / binary artifacts (even outside outputs)
+# Keep schemas/docs tracked
+!data/schemas/
+!data/schemas/**
+
+# =========================
+# Outputs (generated)
+# =========================
+outputs/
+
+# If you want the folder to exist in the repo, create an empty file:
+# outputs/.gitkeep   and then uncomment the next 2 lines:
+# !outputs/.gitkeep
+# !outputs/**/.gitkeep
+
+# Explicitly ignore common generated output types anywhere (extra safety)
 *.pkl
 *.joblib
 *.sqlite
-*.db
+*.sqlite-wal
+*.sqlite-shm
 *.parquet
+*.csv
 *.jsonl
+*.log
 
-# Temporary files
-*.tmp
-*.temp
-*.swp
+# (Optional) If you prefer NOT to ignore every CSV/JSONL globally,
+# then remove the global patterns above for *.csv / *.jsonl,
+# and rely only on the outputs/ + data/processed ignores.

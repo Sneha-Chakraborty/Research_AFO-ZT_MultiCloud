@@ -1,95 +1,107 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import Any, Dict, Iterable, Optional, Tuple
+from typing import Dict, Tuple
 
-import numpy as np
 import pandas as pd
 
 
-def safe_div(a: float, b: float) -> float:
+def _safe_div(a: float, b: float) -> float:
     return float(a / b) if b else 0.0
 
 
-@dataclass
-class Confusion:
-    TP: int
-    FP: int
-    TN: int
-    FN: int
+def binary_metrics(y_true: pd.Series, y_pred: pd.Series) -> Dict[str, float]:
+    """
+    Compute basic binary classification metrics for 0/1 series.
+    Returns accuracy, precision, recall, fpr, f1 and confusion counts.
+    """
+    y_true = y_true.astype(int)
+    y_pred = y_pred.astype(int)
 
-    def as_dict(self) -> Dict[str, int]:
-        return {"TP": self.TP, "FP": self.FP, "TN": self.TN, "FN": self.FN}
+    TP = int(((y_pred == 1) & (y_true == 1)).sum())
+    TN = int(((y_pred == 0) & (y_true == 0)).sum())
+    FP = int(((y_pred == 1) & (y_true == 0)).sum())
+    FN = int(((y_pred == 0) & (y_true == 1)).sum())
 
+    acc = _safe_div(TP + TN, TP + TN + FP + FN)
+    prec = _safe_div(TP, TP + FP)
+    rec = _safe_div(TP, TP + FN)
+    fpr = _safe_div(FP, FP + TN)
+    f1 = _safe_div(2 * prec * rec, prec + rec)
 
-def binary_confusion(y_true: Iterable[int], y_pred: Iterable[int]) -> Confusion:
-    """Compute confusion matrix for 0/1 labels."""
-    yt = np.asarray(list(y_true)).astype(int)
-    yp = np.asarray(list(y_pred)).astype(int)
-
-    TP = int(((yp == 1) & (yt == 1)).sum())
-    TN = int(((yp == 0) & (yt == 0)).sum())
-    FP = int(((yp == 1) & (yt == 0)).sum())
-    FN = int(((yp == 0) & (yt == 1)).sum())
-    return Confusion(TP=TP, FP=FP, TN=TN, FN=FN)
-
-
-def binary_metrics(y_true: Iterable[int], y_pred: Iterable[int]) -> Dict[str, Any]:
-    """Precision/recall/FPR/accuracy/F1 for binary 0/1 predictions."""
-    c = binary_confusion(y_true, y_pred)
-    precision = safe_div(c.TP, c.TP + c.FP)
-    recall = safe_div(c.TP, c.TP + c.FN)
-    fpr = safe_div(c.FP, c.FP + c.TN)
-    accuracy = safe_div(c.TP + c.TN, c.TP + c.TN + c.FP + c.FN)
-    f1 = safe_div(2 * precision * recall, precision + recall)
-    out: Dict[str, Any] = dict(c.as_dict())
-    out.update(
-        {
-            "precision": float(precision),
-            "recall": float(recall),
-            "fpr": float(fpr),
-            "accuracy": float(accuracy),
-            "f1": float(f1),
-        }
-    )
-    return out
-
-
-def percentile(x: Iterable[float], q: float) -> float:
-    xs = [float(v) for v in x if v is not None and not (isinstance(v, float) and np.isnan(v))]
-    if not xs:
-        return 0.0
-    return float(np.percentile(np.asarray(xs, dtype=float), q))
-
-
-def latency_summary(latencies_s: Iterable[float]) -> Dict[str, Any]:
-    xs = [float(v) for v in latencies_s if v is not None and not (isinstance(v, float) and np.isnan(v))]
-    if not xs:
-        return {
-            "count": 0,
-            "mean_s": 0.0,
-            "p50_s": 0.0,
-            "p95_s": 0.0,
-            "p99_s": 0.0,
-            "max_s": 0.0,
-        }
-    arr = np.asarray(xs, dtype=float)
     return {
-        "count": int(arr.size),
-        "mean_s": float(arr.mean()),
-        "p50_s": float(np.percentile(arr, 50)),
-        "p95_s": float(np.percentile(arr, 95)),
-        "p99_s": float(np.percentile(arr, 99)),
-        "max_s": float(arr.max()),
+        "accuracy": float(acc),
+        "precision": float(prec),
+        "recall": float(rec),
+        "fpr": float(fpr),
+        "f1": float(f1),
+        "TP": TP,
+        "TN": TN,
+        "FP": FP,
+        "FN": FN,
     }
 
 
-def hard_flag_from_decision(decision: Any) -> int:
-    """Map decisions to a 0/1 'flagged' outcome for detection metrics.
-
-    By default: restrict/deny => 1, else 0.
+def decision_flags(df: pd.DataFrame, decision_col: str = "decision_tuned") -> Tuple[pd.Series, pd.Series]:
     """
-    if decision is None:
-        return 0
-    d = str(decision).strip().lower()
-    return 1 if d in {"restrict", "deny"} else 0
+    Convert 4-class ZT decisions into:
+      - flag_pred: 1 if flagged (stepup/restrict/deny), else 0
+      - hard_pred: 1 if hard action (restrict/deny), else 0
+    """
+    if decision_col not in df.columns:
+        raise KeyError(f"Missing decision column: {decision_col}")
+
+    dec = df[decision_col].fillna("").astype(str)
+    flag_pred = dec.isin(["stepup", "restrict", "deny"]).astype(int)
+    hard_pred = dec.isin(["restrict", "deny"]).astype(int)
+    return flag_pred, hard_pred
+
+
+def access_decision_precision(df: pd.DataFrame, decision_col: str = "decision_tuned") -> float:
+    """
+    Access Decision Precision (for deny/stepup/restrict):
+    Among all flagged decisions, what fraction were truly attacks?
+
+    If there are no flagged decisions, returns 0.0.
+    """
+    if "label_attack" not in df.columns:
+        raise KeyError("Missing label_attack column for evaluation.")
+    y = df["label_attack"].astype(int)
+    flag_pred, _ = decision_flags(df, decision_col=decision_col)
+
+    flagged = flag_pred == 1
+    return float((y[flagged] == 1).mean()) if int(flagged.sum()) > 0 else 0.0
+
+
+def summarize_scores(df: pd.DataFrame, decision_col: str = "decision_tuned") -> Dict[str, float]:
+    """
+    Summary metrics used consistently across baselines + AFO-ZT.
+    """
+    if "label_attack" not in df.columns:
+        raise KeyError("Missing label_attack column for evaluation.")
+    y = df["label_attack"].astype(int)
+
+    flag_pred, hard_pred = decision_flags(df, decision_col=decision_col)
+    m_flag = binary_metrics(y, flag_pred)
+    m_hard = binary_metrics(y, hard_pred)
+
+    return {
+        "rows": float(len(df)),
+        "attacks": float((y == 1).sum()),
+        "benign": float((y == 0).sum()),
+        # Detection (flagged)
+        "det_accuracy": m_flag["accuracy"],
+        "det_precision": m_flag["precision"],
+        "det_recall": m_flag["recall"],
+        "det_fpr": m_flag["fpr"],
+        "det_f1": m_flag["f1"],
+        # Hard actions
+        "hard_accuracy": m_hard["accuracy"],
+        "hard_precision": m_hard["precision"],
+        "hard_recall": m_hard["recall"],
+        "hard_fpr": m_hard["fpr"],
+        "hard_f1": m_hard["f1"],
+        # ZT-specific
+        "access_decision_precision": access_decision_precision(df, decision_col=decision_col),
+        "flagged_rate": float(flag_pred.mean()),
+        "hard_rate": float(hard_pred.mean()),
+    }
