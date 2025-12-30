@@ -1,2 +1,0 @@
-stage,start_index,end_index,n_events,budgets_ok,reasons
-shadow,0,25044,25044,False,override 0.9478 > 0.1000

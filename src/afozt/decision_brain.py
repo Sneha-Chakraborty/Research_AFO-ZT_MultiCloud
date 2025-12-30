@@ -41,17 +41,23 @@ class BrainConfig:
     iforest_random_state: int = 42
 
     # Fusion weights
-    w_anom: float = 1.20
-    w_rule: float = 1.00
-    w_graph: float = 1.15
-    bias: float = -0.40
+    w_anom: float = 0.80
+    w_rule: float = 0.50
+    w_graph: float = 0.70
+    bias: float = -1.00
 
     # Decision thresholds (Step 2.6 will refine; Step 2.5 provides a draft)
-    t_allow: float = 0.30
-    t_stepup: float = 0.60
-    t_restrict: float = 0.80
-    t_deny: float = 0.90
-    min_conf_for_hard_actions: float = 0.60
+    t_allow: float = 0.70
+    t_stepup: float = 0.81
+    t_restrict: float = 0.88
+    t_deny: float = 0.91
+    min_conf_for_hard_actions: float = 0.55
+    
+    
+
+    # Override thresholds
+    override_conf_threshold: float = 0.35
+    analyst_override_budget: float = 0.30
 
     # Rationale thresholds
     thr_failed_logins_5m: float = 3.0

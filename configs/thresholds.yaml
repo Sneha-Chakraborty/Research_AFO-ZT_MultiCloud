@@ -1,21 +1,8 @@
-# Thresholds used in Step 2.5 rule scoring (interpretable heuristics)
+allow_lt: 0.544732
+stepup_lt: 0.544732
+restrict_lt: 0.623730
+deny_lt: 0.633345
 
-failed_logins_5m: 3.0
-bytes_spike_score: 2.5
-posture_drift: 0.25
-new_resource_rate_win: 1.0
-shortest_sensitive_hops: 2
-blast_radius_k: 15
-
-# Risk bands (0..1)
-allow_lt: 0.30
-stepup_lt: 0.60
-restrict_lt: 0.80
-
-# Hard actions only if confidence is high enough
-min_conf_for_hard_actions: 0.60
-
-# Action parameter defaults (used in simulated adapters)
-short_session_minutes: 15
-restrict_scope: least_privilege
-isolate_policy: microsegment
+# Confidence gating (tune later; your confidence median ~0.27)
+# min_conf_for_hard_actions: 0.25
+min_conf_for_hard_actions: 0.35

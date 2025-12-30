@@ -30,7 +30,7 @@ def main() -> None:
     parser.add_argument(
         "--scores",
         type=str,
-        default=str(RESULTS_DIR / "afozt_scores.csv"),
+        default=str(RESULTS_DIR / "afozt_scores_with_tuned_decisions.csv"),
         help="Path to Step 2.5 scores CSV.",
     )
     parser.add_argument(

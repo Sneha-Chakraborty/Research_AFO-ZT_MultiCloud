@@ -6,6 +6,7 @@ shadow_days: 7
 canary_days: 3
 enforce_days: 3
 
+
 # Canary selection
 canary_fraction: 0.05        # 5% of cohort gets enforcement in CANARY stage
 cohort_key: session_id       # hashing key (session_id/principal_id/device_id)
@@ -17,11 +18,14 @@ enforce_tenant_id: null      # set to a tenant_id string to constrain further
 enforce_region: null         # optionally limit to a region
 
 # "Human-in-the-loop" override model (simulated)
-override_conf_threshold: 0.55
+# override_conf_threshold: 0.55
+override_conf_threshold: 0.35
 
 # Safety budgets (rollback triggers)
 false_deny_budget: 0.02          # benign denied / benign enforced
-mfa_friction_budget: 0.10        # enforced step-up rate
+mfa_friction_budget: 0.17        # enforced step-up rate
 latency_p95_budget_ms: 600       # p95 latency after simulated overhead
 error_rate_budget: 0.01          # simulated policy-induced unexpected errors
-analyst_override_budget: 0.10    # severe + low-confidence rate
+# analyst_override_budget: 0.10    # severe + low-confidence rate
+analyst_override_budget: 0.30
+

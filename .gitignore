@@ -1,126 +1,78 @@
-############################################
+# =========================
 # Python / Virtualenv
-############################################
+# =========================
 __pycache__/
 *.py[cod]
 *$py.class
 
-# Virtual environments
 .venv/
 venv/
-env/
 ENV/
+env/
+pip-wheel-metadata/
 
-# Python tooling caches
+# =========================
+# Testing / Lint / Typecheck caches
+# =========================
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
-.pytype/
-.pyre/
 .cache/
-pip-wheel-metadata/
-
-# Coverage / reports
+coverage.xml
 .coverage
-.coverage.*
 htmlcov/
-*.cover
-*.py,cover
 
-############################################
-# Jupyter (if you ever use notebooks)
-############################################
+# =========================
+# Jupyter
+# =========================
 .ipynb_checkpoints/
 
-############################################
-# Build / packaging
-############################################
+# =========================
+# Packaging
+# =========================
 build/
 dist/
 *.egg-info/
 .eggs/
-wheelhouse/
 
-############################################
-# OS / Editor junk
-############################################
+# =========================
+# OS / Editor
+# =========================
 .DS_Store
 Thumbs.db
-Desktop.ini
 
-# VS Code (keep only commonly-shared config files)
-.vscode/*
+.vscode/
 !.vscode/settings.json
+!.vscode/extensions.json
 !.vscode/launch.json
 !.vscode/tasks.json
-!.vscode/extensions.json
 
-# JetBrains
-.idea/
-
-############################################
+# =========================
 # Secrets / local config
-############################################
+# =========================
 .env
 .env.*
-*.pem
-*.key
-*.p12
-*.pfx
+*.local
 
-############################################
-# Logs (general)
-############################################
-*.log
-logs/
-outputs/logs/
-
-############################################
-# Data artifacts (generated)
-############################################
-# Processed data is reproducible from scripts
-data/processed/
-
-# Raw datasets can be large; ignore by default.
-# If you WANT to commit raw data, delete the next line.
-data/raw/*
-
-# Keep schemas/docs tracked
-!data/schemas/
-!data/schemas/**
-
-############################################
-# Model / binary artifacts (avoid GitHub 100MB limit)
-############################################
-# Your repo generates large models + sqlite DB files here
-outputs/models/
-
-# Also ignore sqlite + WAL/SHM anywhere (safety)
-*.sqlite
-*.sqlite-wal
-*.sqlite-shm
-*.db
-*.db-wal
-*.db-shm
-
-# Common ML serialization artifacts anywhere
+# =========================
+# Data / Model / Artifacts (generated)
+# =========================
+*.parquet
 *.pkl
 *.joblib
-*.pickle
-*.parquet
+*.sqlite
+*.db
+*.jsonl
 
-############################################
-# Experiment outputs (keep small summaries if you want)
-############################################
-outputs/figures/
+# Ignore generated outputs completely
+outputs/
 
-# JSONL can grow fast (keep CSV/JSON summaries if needed)
-outputs/results/*.jsonl
+# (Optional) If you want to keep empty folders in git, create these files:
+# outputs/.gitkeep
+# outputs/results/.gitkeep
+# outputs/models/.gitkeep
+# Then uncomment:
+# !outputs/**/.gitkeep
 
-############################################
-# Misc temp files
-############################################
-*.tmp
-*.swp
-*.swo
-*~
+# (Optional) If you want to avoid committing processed data:
+data/processed/
