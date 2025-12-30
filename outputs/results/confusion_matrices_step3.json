@@ -1,0 +1,26 @@
+{
+  "baseline_static": {
+    "restrict": 25943,
+    "stepup": 11001,
+    "allow": 8182,
+    "deny": 4874
+  },
+  "baseline_siem": {
+    "restrict": 27927,
+    "stepup": 13109,
+    "allow": 8047,
+    "deny": 917
+  },
+  "baseline_raac_iforest": {
+    "allow": 33146,
+    "stepup": 10944,
+    "restrict": 5734,
+    "deny": 176
+  },
+  "afozt": {
+    "allow": 39966,
+    "stepup": 7970,
+    "deny": 1554,
+    "restrict": 510
+  }
+}

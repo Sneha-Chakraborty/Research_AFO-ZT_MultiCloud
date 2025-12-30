@@ -1,98 +1,139 @@
-############################################
-# Research_AFO-ZT_MultiCloud (.gitignore)
-# After SIEM baseline implementation
-############################################
+################################################################################
+# Research_AFO-ZT_MultiCloud — .gitignore
+# (after RAAC Isolation Forest baseline; tuned for your folders: .venv/, outputs/, data/)
+################################################################################
 
-# -------- Python bytecode / caches --------
+# ----------------------------
+# Python bytecode / caches
+# ----------------------------
 __pycache__/
 **/__pycache__/
 *.py[cod]
 *$py.class
-.pytest_cache/
-.mypy_cache/
-.pytype/
-.pyre/
-.ruff_cache/
 
-# -------- Virtual environments --------
+# Type check / lint / test caches
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.pyre/
+.pytype/
+.dmypy.json
+
+# Coverage / test reports
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+nosetests.xml
+test-results/
+junit*.xml
+
+# Jupyter
+.ipynb_checkpoints/
+
+# ----------------------------
+# Virtual environments
+# ----------------------------
 .venv/
 venv/
 env/
 ENV/
+.conda/
+.egg-cache/
 
-# -------- Jupyter --------
-.ipynb_checkpoints/
-*.ipynb
+# dotenv / secrets
+.env
+.env.*
+*.env
 
-# -------- Packaging / build artifacts --------
+# ----------------------------
+# Build / packaging artifacts
+# ----------------------------
 build/
 dist/
 *.egg-info/
 .eggs/
-wheels/
 pip-wheel-metadata/
+wheels/
+MANIFEST
 
-# -------- OS junk --------
-.DS_Store
-Thumbs.db
-ehthumbs.db
-Desktop.ini
-$RECYCLE.BIN/
-
-# -------- Editor/IDE --------
+# ----------------------------
+# IDE / OS clutter
+# ----------------------------
 .vscode/
 .idea/
-*.swp
+*.code-workspace
+
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editors
 *~
-*.bak
+*.swp
+*.swo
 
-# -------- Secrets / local env files --------
-.env
-.env.*
-*.pem
-*.key
-*.p12
-*.pfx
-*.crt
-
-# -------- Logs --------
-*.log
-
-# -------- Data (generated/intermediate) --------
-# Keep raw dataset if you want; ignore processed artifacts that are regenerated
+# ----------------------------
+# Data artifacts (generated)
+# Keep schemas tracked; ignore processed datasets that are re-creatable.
+# ----------------------------
 data/processed/
+data/processed/*.csv
+data/processed/*.parquet
 
-# -------- Outputs (generated artifacts; avoid GitHub 100MB limit) --------
-# Figures + logs (generated)
+# (Optional) If your raw CSV is large or re-generatable, uncomment next line:
+# data/raw/
+
+# ----------------------------
+# Outputs (generated artifacts)
+# Your repo has outputs/models/*.pkl and trust_graph.sqlite* and outputs/results/*.csv/.jsonl
+# ----------------------------
+
+# Figures/logs are generated
 outputs/figures/
 outputs/logs/
 
-# Models/artifacts (generated, can be very large)
+# Models: ignore heavy binaries
 outputs/models/*.pkl
+outputs/models/*.pickle
 outputs/models/*.joblib
-outputs/models/*.pt
-outputs/models/*.pth
-outputs/models/*.h5
-outputs/models/*.onnx
+outputs/models/*.sav
 
-# SQLite trust graph DB + sidecar files (very large)
+# SQLite trust graph and any sqlite DBs
 outputs/models/*.sqlite
 outputs/models/*.sqlite-*
+outputs/models/*.sqlite-wal
+outputs/models/*.sqlite-shm
 outputs/models/*.db
 outputs/models/*.db-*
+outputs/models/*.db-wal
+outputs/models/*.db-shm
 
-# Results (often large CSV/JSONL)
-outputs/results/*.csv
-outputs/results/*.tsv
-outputs/results/*.parquet
-outputs/results/*.feather
-outputs/results/*.jsonl
-
-# Optional: keep small “summary” results in git (unignore these)
-!outputs/results/metrics_summary.csv
-!outputs/results/confusion_matrices.json
-!outputs/results/latency_stats.json
-
-# Optional: keep small preview/manifest files in git (unignore these)
+# But keep small metadata you intentionally generate
 !outputs/models/*.manifest.json
 !outputs/models/*_preview.json
+!outputs/models/**/*.manifest.json
+!outputs/models/**/*_preview.json
+
+# Results: ignore generated logs + heavy per-event outputs
+outputs/results/*.jsonl
+outputs/results/*.log
+
+# Ignore all CSV/JSON results by default (they are regenerated)
+outputs/results/*.csv
+outputs/results/*.json
+
+# But keep compact “summary” artifacts that are safe to version
+!outputs/results/metrics_summary*.csv
+!outputs/results/confusion_matrices*.json
+!outputs/results/latency_stats.json
+!outputs/results/rollout_metrics.json
+
+# ----------------------------
+# Misc
+# ----------------------------
+tmp/
+temp/
+.cache/
+logs/
+*.log

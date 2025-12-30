@@ -13,7 +13,8 @@ if str(REPO_ROOT) not in sys.path:
 
 from src.baselines.siem_rules import SiemRulesBaseline, SiemRulesConfig
 from src.baselines.static_rules import StaticRulesBaseline, StaticRulesConfig
-from src.common.constants import DEFAULT_UNIFIED_CSV, MODELS_DIR, RESULTS_DIR
+from src.baselines.raac_iforest import RaacIForestBaseline, RaacIForestConfig
+from src.common.constants import DEFAULT_UNIFIED_CSV, MODELS_DIR, RESULTS_DIR, PROCESSED_DIR
 from src.common.logging_setup import setup_logger
 from src.common.utils import ensure_dirs
 
@@ -21,49 +22,58 @@ from src.common.utils import ensure_dirs
 def run_static(in_csv: Path, out_csv: Path, model_out: Path) -> None:
     df = pd.read_csv(in_csv)
     baseline = StaticRulesBaseline(StaticRulesConfig())
-
-    scored = baseline.score(df)
-
+    scores = baseline.score(df)
     out_csv.parent.mkdir(parents=True, exist_ok=True)
-    scored.to_csv(out_csv, index=False)
-
-    model_out.parent.mkdir(parents=True, exist_ok=True)
-    joblib.dump({"baseline": "static_rules", "config": StaticRulesConfig().__dict__}, model_out)
+    scores.to_csv(out_csv, index=False)
+    joblib.dump({"baseline": "static_rules", "config": baseline.cfg.__dict__}, model_out)
 
 
 def run_siem(in_csv: Path, out_csv: Path, model_out: Path) -> None:
     df = pd.read_csv(in_csv)
     baseline = SiemRulesBaseline(SiemRulesConfig())
+    scores = baseline.score(df)
+    out_csv.parent.mkdir(parents=True, exist_ok=True)
+    scores.to_csv(out_csv, index=False)
+    joblib.dump({"baseline": "siem_rules", "config": baseline.cfg.__dict__}, model_out)
 
-    scored = baseline.score(df)
+
+def run_raac_iforest(in_csv: Path, out_csv: Path, model_out: Path, *, train_csv: Path | None = None) -> None:
+    df = pd.read_csv(in_csv)
+
+    # Best-effort: if train split exists, fit on it; else fit on full df
+    df_train = None
+    if train_csv is not None and train_csv.exists():
+        df_train = pd.read_csv(train_csv)
+    else:
+        # try default processed/train.csv
+        default_train = PROCESSED_DIR / "train.csv"
+        if default_train.exists():
+            df_train = pd.read_csv(default_train)
+
+    baseline = RaacIForestBaseline(RaacIForestConfig())
+    if df_train is not None:
+        baseline.fit(df_train)
+
+    scores = baseline.score(df)
 
     out_csv.parent.mkdir(parents=True, exist_ok=True)
-    scored.to_csv(out_csv, index=False)
+    scores.to_csv(out_csv, index=False)
 
-    model_out.parent.mkdir(parents=True, exist_ok=True)
-    joblib.dump(baseline.artifact(), model_out)
+    joblib.dump(baseline.artifact, model_out)
 
 
 def main() -> None:
-    ap = argparse.ArgumentParser(description="Step 3: Run baselines on unified telemetry.")
+    ap = argparse.ArgumentParser(description="Run baselines (Step 3).")
     ap.add_argument(
         "--baseline",
-        choices=["static", "siem"],
+        choices=["static", "siem", "raac_iforest"],
         default="static",
         help="Which baseline to run.",
     )
     ap.add_argument("--in", dest="in_csv", default=str(DEFAULT_UNIFIED_CSV), help="Input unified telemetry CSV.")
-    ap.add_argument(
-        "--out",
-        dest="out_csv",
-        default=None,
-        help="Output scores CSV (default depends on baseline).",
-    )
-    ap.add_argument(
-        "--model-out",
-        default=None,
-        help="Where to store baseline artifact (default depends on baseline).",
-    )
+    ap.add_argument("--train", dest="train_csv", default=None, help="Optional train CSV for ML baselines.")
+    ap.add_argument("--out", dest="out_csv", default=None, help="Output scores CSV (default depends on baseline).")
+    ap.add_argument("--model-out", default=None, help="Where to store baseline artifact (default depends on baseline).")
     args = ap.parse_args()
 
     ensure_dirs()
@@ -73,13 +83,18 @@ def main() -> None:
     if not in_csv.exists():
         raise FileNotFoundError(f"Input CSV not found: {in_csv}. Run Step 2.2 normalize first.")
 
+    train_csv = Path(args.train_csv) if args.train_csv else None
+
     # baseline-specific defaults
     if args.baseline == "static":
         out_csv = Path(args.out_csv) if args.out_csv else (RESULTS_DIR / "baseline_static_scores.csv")
         model_out = Path(args.model_out) if args.model_out else (MODELS_DIR / "baseline_static.pkl")
-    else:
+    elif args.baseline == "siem":
         out_csv = Path(args.out_csv) if args.out_csv else (RESULTS_DIR / "baseline_siem_scores.csv")
         model_out = Path(args.model_out) if args.model_out else (MODELS_DIR / "baseline_siem.pkl")
+    else:
+        out_csv = Path(args.out_csv) if args.out_csv else (RESULTS_DIR / "baseline_raac_iforest_scores.csv")
+        model_out = Path(args.model_out) if args.model_out else (MODELS_DIR / "baseline_raac_iforest.pkl")
 
     logger.info(f"Running baseline={args.baseline} on {in_csv} -> {out_csv}")
 
@@ -87,6 +102,8 @@ def main() -> None:
         run_static(in_csv, out_csv, model_out)
     elif args.baseline == "siem":
         run_siem(in_csv, out_csv, model_out)
+    elif args.baseline == "raac_iforest":
+        run_raac_iforest(in_csv, out_csv, model_out, train_csv=train_csv)
     else:
         raise ValueError(f"Unsupported baseline: {args.baseline}")
 

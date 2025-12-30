@@ -1,0 +1,53 @@
+{
+  "artifact_type": "<class 'dict'>",
+  "keys": [
+    "baseline",
+    "config",
+    "derived",
+    "feature_cols",
+    "model"
+  ],
+  "baseline": "raac_iforest",
+  "config": {
+    "alpha_context": 0.55,
+    "beta_behavior": 0.45,
+    "t_allow": 0.35,
+    "t_stepup": 0.55,
+    "t_deny": 0.75,
+    "w_posture": 0.3,
+    "w_mfa_missing": 0.2,
+    "w_time_anomaly": 0.15,
+    "w_priv_escalation": 0.2,
+    "w_sensitive_resource": 0.15,
+    "posture_low": 0.5,
+    "iforest_n_estimators": 160,
+    "iforest_contamination": 0.06,
+    "iforest_max_samples": "auto",
+    "random_state": 42,
+    "anom_q_low": 0.05,
+    "anom_q_high": 0.95,
+    "iforest_feature_cols": [
+      "raw_login_failures_5m",
+      "raw_api_calls_5m",
+      "bytes_out",
+      "token_age",
+      "posture_score",
+      "latency_ms"
+    ]
+  },
+  "derived": {
+    "anom_low": -0.16619755411965223,
+    "anom_high": 0.007419180929379597
+  },
+  "feature_cols": {
+    "count": 6,
+    "preview": [
+      "raw_login_failures_5m",
+      "raw_api_calls_5m",
+      "bytes_out",
+      "token_age",
+      "posture_score",
+      "latency_ms"
+    ]
+  }
+}
