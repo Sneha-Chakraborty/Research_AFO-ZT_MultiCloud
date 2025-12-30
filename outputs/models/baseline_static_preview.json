@@ -1,0 +1,11 @@
+{
+  "baseline": "static_rules",
+  "config": {
+    "posture_restrict": 0.4,
+    "posture_stepup": 0.6,
+    "login_fail_stepup": 6,
+    "login_fail_restrict": 10,
+    "bytes_p95": 33000.0,
+    "bytes_p99": 100000.0
+  }
+}

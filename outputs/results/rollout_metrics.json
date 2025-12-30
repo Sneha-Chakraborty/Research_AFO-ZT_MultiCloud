@@ -1,0 +1,29 @@
+{
+  "shadow": {
+    "n_events": 25044,
+    "enforced_fraction": 1.0,
+    "false_deny_rate": 0.0006388755789809935,
+    "mfa_friction_rate": 0.14937709631049353,
+    "latency_p95_ms": 299.0304543109916,
+    "policy_error_rate": 0.0007187350263536176,
+    "analyst_override_rate": 0.0005590161316083692
+  },
+  "canary": {
+    "n_events": 10692,
+    "enforced_fraction": 0.046670407781518895,
+    "false_deny_rate": 0.002004008016032064,
+    "mfa_friction_rate": 0.16432865731462926,
+    "latency_p95_ms": 300.3817094722232,
+    "policy_error_rate": 0.0,
+    "analyst_override_rate": 0.0
+  },
+  "enforce": {
+    "n_events": 10719,
+    "enforced_fraction": 0.41048605280343314,
+    "false_deny_rate": 0.0013636363636363637,
+    "mfa_friction_rate": 0.17931818181818182,
+    "latency_p95_ms": 297.3716039978207,
+    "policy_error_rate": 0.0013636363636363637,
+    "analyst_override_rate": 0.00022727272727272727
+  }
+}

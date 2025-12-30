@@ -1,9 +1,18 @@
-"""
-Baselines package.
+"""Baselines package (Step 3).
 
-Step 3 adds the first baseline: StaticRulesBaseline (RBAC/ABAC-like).
-Other baselines (SIEM rules, RAAC+IForest, per-cloud brains) are implemented in later steps.
+Implemented so far:
+- Static RBAC/ABAC-like rules baseline
+- SIEM threshold/correlation rules baseline
+
+Later steps can add ML-style baselines (e.g., RAAC+Isolation Forest, per-cloud brains).
 """
+
 from .static_rules import StaticRulesBaseline, StaticRulesConfig
+from .siem_rules import SiemRulesBaseline, SiemRulesConfig
 
-__all__ = ["StaticRulesBaseline", "StaticRulesConfig"]
+__all__ = [
+    "StaticRulesBaseline",
+    "StaticRulesConfig",
+    "SiemRulesBaseline",
+    "SiemRulesConfig",
+]

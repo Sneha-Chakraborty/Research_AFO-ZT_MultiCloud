@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from typing import Dict, Tuple
+from typing import Any, Dict, Iterable, Tuple
 
+import numpy as np
 import pandas as pd
 
 
@@ -10,8 +11,8 @@ def _safe_div(a: float, b: float) -> float:
 
 
 def binary_metrics(y_true: pd.Series, y_pred: pd.Series) -> Dict[str, float]:
-    """
-    Compute basic binary classification metrics for 0/1 series.
+    """Compute basic binary metrics for 0/1 series.
+
     Returns accuracy, precision, recall, fpr, f1 and confusion counts.
     """
     y_true = y_true.astype(int)
@@ -42,10 +43,10 @@ def binary_metrics(y_true: pd.Series, y_pred: pd.Series) -> Dict[str, float]:
 
 
 def decision_flags(df: pd.DataFrame, decision_col: str = "decision_tuned") -> Tuple[pd.Series, pd.Series]:
-    """
-    Convert 4-class ZT decisions into:
-      - flag_pred: 1 if flagged (stepup/restrict/deny), else 0
-      - hard_pred: 1 if hard action (restrict/deny), else 0
+    """Convert 4-class ZT decisions into two binary views.
+
+    - flag_pred: 1 if flagged (stepup/restrict/deny), else 0
+    - hard_pred: 1 if hard action (restrict/deny), else 0
     """
     if decision_col not in df.columns:
         raise KeyError(f"Missing decision column: {decision_col}")
@@ -57,14 +58,13 @@ def decision_flags(df: pd.DataFrame, decision_col: str = "decision_tuned") -> Tu
 
 
 def access_decision_precision(df: pd.DataFrame, decision_col: str = "decision_tuned") -> float:
-    """
-    Access Decision Precision (for deny/stepup/restrict):
-    Among all flagged decisions, what fraction were truly attacks?
+    """Access Decision Precision (ZT outcome).
 
-    If there are no flagged decisions, returns 0.0.
+    Among all flagged decisions (deny/stepup/restrict), what fraction were truly attacks?
     """
     if "label_attack" not in df.columns:
         raise KeyError("Missing label_attack column for evaluation.")
+
     y = df["label_attack"].astype(int)
     flag_pred, _ = decision_flags(df, decision_col=decision_col)
 
@@ -73,9 +73,7 @@ def access_decision_precision(df: pd.DataFrame, decision_col: str = "decision_tu
 
 
 def summarize_scores(df: pd.DataFrame, decision_col: str = "decision_tuned") -> Dict[str, float]:
-    """
-    Summary metrics used consistently across baselines + AFO-ZT.
-    """
+    """Summary metrics used consistently across baselines + AFO-ZT."""
     if "label_attack" not in df.columns:
         raise KeyError("Missing label_attack column for evaluation.")
     y = df["label_attack"].astype(int)
@@ -104,4 +102,35 @@ def summarize_scores(df: pd.DataFrame, decision_col: str = "decision_tuned") -> 
         "access_decision_precision": access_decision_precision(df, decision_col=decision_col),
         "flagged_rate": float(flag_pred.mean()),
         "hard_rate": float(hard_pred.mean()),
+    }
+
+
+# ----------------------------
+# Latency / response summaries
+# ----------------------------
+
+def latency_summary(latencies_s: Iterable[float]) -> Dict[str, Any]:
+    """Summarize response latencies in seconds.
+
+    Used by Step 2.8 simulated orchestration.
+    """
+    xs = [float(v) for v in latencies_s if v is not None and not (isinstance(v, float) and np.isnan(v))]
+    if not xs:
+        return {
+            "count": 0,
+            "mean_s": 0.0,
+            "p50_s": 0.0,
+            "p95_s": 0.0,
+            "p99_s": 0.0,
+            "max_s": 0.0,
+        }
+
+    arr = np.asarray(xs, dtype=float)
+    return {
+        "count": int(arr.size),
+        "mean_s": float(arr.mean()),
+        "p50_s": float(np.percentile(arr, 50)),
+        "p95_s": float(np.percentile(arr, 95)),
+        "p99_s": float(np.percentile(arr, 99)),
+        "max_s": float(arr.max()),
     }

@@ -17,8 +17,9 @@ from src.evaluation.compare_baselines import BaselineRun, compare_runs, write_co
 
 
 def main() -> None:
-    ap = argparse.ArgumentParser(description="Run comparison table across models (Step 3: starts with static baseline).")
+    ap = argparse.ArgumentParser(description="Step 3: Compare AFO-ZT vs baselines (static, SIEM).")
     ap.add_argument("--static-scores", default=str(RESULTS_DIR / "baseline_static_scores.csv"))
+    ap.add_argument("--siem-scores", default=str(RESULTS_DIR / "baseline_siem_scores.csv"))
     ap.add_argument("--afozt-scores", default=str(RESULTS_DIR / "afozt_scores_with_tuned_decisions.csv"))
     ap.add_argument("--out-csv", default=str(RESULTS_DIR / "metrics_summary_step3.csv"))
     ap.add_argument("--out-confusions", default=str(RESULTS_DIR / "confusion_matrices_step3.json"))
@@ -28,17 +29,26 @@ def main() -> None:
     logger = setup_logger("run_all_and_compare")
 
     runs = []
+
     static_path = Path(args.static_scores)
     if static_path.exists():
         runs.append(BaselineRun(name="baseline_static", scores_csv=static_path))
     else:
         logger.warning(f"Missing static baseline scores: {static_path} (run: python scripts/run_baselines.py --baseline static)")
 
+    siem_path = Path(args.siem_scores)
+    if siem_path.exists():
+        runs.append(BaselineRun(name="baseline_siem", scores_csv=siem_path))
+    else:
+        logger.warning(f"Missing SIEM baseline scores: {siem_path} (run: python scripts/run_baselines.py --baseline siem)")
+
     afozt_path = Path(args.afozt_scores)
     if afozt_path.exists():
         runs.append(BaselineRun(name="afozt", scores_csv=afozt_path))
     else:
-        logger.warning(f"Missing AFO-ZT tuned scores: {afozt_path} (run: python scripts/run_afozt.py then python scripts/tune_thresholds.py)")
+        logger.warning(
+            f"Missing AFO-ZT tuned scores: {afozt_path} (run: python scripts/run_afozt.py then python scripts/tune_thresholds.py)"
+        )
 
     if not runs:
         raise FileNotFoundError("No score files found to compare.")

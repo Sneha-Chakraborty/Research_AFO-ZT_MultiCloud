@@ -1,86 +1,98 @@
-# =========================
-# OS / Editor junk
-# =========================
-.DS_Store
-Thumbs.db
-Desktop.ini
+############################################
+# Research_AFO-ZT_MultiCloud (.gitignore)
+# After SIEM baseline implementation
+############################################
 
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# =========================
-# Secrets / local config
-# =========================
-.env
-.env.*
-!.env.example
-
-# =========================
-# Python / build artifacts
-# =========================
+# -------- Python bytecode / caches --------
 __pycache__/
+**/__pycache__/
 *.py[cod]
-*.pyd
-*.so
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.pytype/
+.pyre/
+.ruff_cache/
 
+# -------- Virtual environments --------
+.venv/
+venv/
+env/
+ENV/
+
+# -------- Jupyter --------
+.ipynb_checkpoints/
+*.ipynb
+
+# -------- Packaging / build artifacts --------
 build/
 dist/
 *.egg-info/
 .eggs/
+wheels/
+pip-wheel-metadata/
 
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-.coverage
-htmlcov/
+# -------- OS junk --------
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
 
-# Jupyter
-.ipynb_checkpoints/
+# -------- Editor/IDE --------
+.vscode/
+.idea/
+*.swp
+*~
+*.bak
 
-# =========================
-# Virtual environments
-# =========================
-.venv/
-venv/
-env/
+# -------- Secrets / local env files --------
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
 
-# =========================
-# Data artifacts (generated)
-# =========================
-data/processed/
-
-# If your raw dataset is large and you don't want it in Git, keep this ON.
-# If you DO want the raw CSV committed, delete the next line.
-data/raw/*.csv
-
-# Keep schemas/docs tracked
-!data/schemas/
-!data/schemas/**
-
-# =========================
-# Outputs (generated)
-# =========================
-outputs/
-
-# If you want the folder to exist in the repo, create an empty file:
-# outputs/.gitkeep   and then uncomment the next 2 lines:
-# !outputs/.gitkeep
-# !outputs/**/.gitkeep
-
-# Explicitly ignore common generated output types anywhere (extra safety)
-*.pkl
-*.joblib
-*.sqlite
-*.sqlite-wal
-*.sqlite-shm
-*.parquet
-*.csv
-*.jsonl
+# -------- Logs --------
 *.log
 
-# (Optional) If you prefer NOT to ignore every CSV/JSONL globally,
-# then remove the global patterns above for *.csv / *.jsonl,
-# and rely only on the outputs/ + data/processed ignores.
+# -------- Data (generated/intermediate) --------
+# Keep raw dataset if you want; ignore processed artifacts that are regenerated
+data/processed/
+
+# -------- Outputs (generated artifacts; avoid GitHub 100MB limit) --------
+# Figures + logs (generated)
+outputs/figures/
+outputs/logs/
+
+# Models/artifacts (generated, can be very large)
+outputs/models/*.pkl
+outputs/models/*.joblib
+outputs/models/*.pt
+outputs/models/*.pth
+outputs/models/*.h5
+outputs/models/*.onnx
+
+# SQLite trust graph DB + sidecar files (very large)
+outputs/models/*.sqlite
+outputs/models/*.sqlite-*
+outputs/models/*.db
+outputs/models/*.db-*
+
+# Results (often large CSV/JSONL)
+outputs/results/*.csv
+outputs/results/*.tsv
+outputs/results/*.parquet
+outputs/results/*.feather
+outputs/results/*.jsonl
+
+# Optional: keep small “summary” results in git (unignore these)
+!outputs/results/metrics_summary.csv
+!outputs/results/confusion_matrices.json
+!outputs/results/latency_stats.json
+
+# Optional: keep small preview/manifest files in git (unignore these)
+!outputs/models/*.manifest.json
+!outputs/models/*_preview.json

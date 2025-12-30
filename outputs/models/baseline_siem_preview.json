@@ -1,0 +1,19 @@
+{
+  "baseline": "siem_rules",
+  "config": {
+    "login_fail_alert": 5,
+    "login_fail_high": 10,
+    "api_calls_alert": 60,
+    "api_calls_high": 120,
+    "posture_low": 0.35,
+    "posture_medium": 0.55,
+    "bytes_p95": null,
+    "bytes_p99": null,
+    "window_minutes": 15,
+    "correlation_hits_to_escalate": 3
+  },
+  "derived": {
+    "bytes_p95": 33167.34999999997,
+    "bytes_p99": 100378.58000000012
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "artifact_type": "<class 'dict'>",
+  "artifact_keys": [
+    "calibrator",
+    "cfg",
+    "feature_cols",
+    "iforest",
+    "scaler"
+  ],
+  "cfg": {
+    "iforest_n_estimators": 200,
+    "iforest_max_samples": 0.8,
+    "iforest_contamination": 0.02,
+    "iforest_random_state": 42,
+    "w_anom": 1.2,
+    "w_rule": 1.0,
+    "w_graph": 1.15,
+    "bias": -0.4,
+    "t_allow": 0.3,
+    "t_stepup": 0.6,
+    "t_restrict": 0.8,
+    "t_deny": 0.9,
+    "min_conf_for_hard_actions": 0.6,
+    "thr_failed_logins_5m": 3.0,
+    "thr_bytes_spike": 2.5,
+    "thr_posture_drift": 0.25,
+    "thr_new_resource_rate": 1.0,
+    "thr_shortest_sensitive_hops": 2,
+    "thr_blast_radius_k": 15,
+    "anomaly_feature_cols": null
+  },
+  "feature_cols_count": 15,
+  "feature_cols_preview": [
+    "f_token_scope_width",
+    "f_token_age",
+    "f_bytes_out_log1p",
+    "f_failed_logins_5m",
+    "f_geo_switch",
+    "f_fast_geo_switch",
+    "f_posture_drift",
+    "f_bytes_spike_score",
+    "f_is_privileged_role",
+    "g_cross_cloud_hops_session",
+    "g_is_new_resource_edge",
+    "g_new_resource_count_win",
+    "g_new_resource_rate_win",
+    "g_shortest_to_sensitive_hops",
+    "g_blast_radius_sensitive_k"
+  ],
+  "iforest_params": {
+    "bootstrap": false,
+    "contamination": 0.02,
+    "max_features": 1.0,
+    "max_samples": 0.8,
+    "n_estimators": 200,
+    "n_jobs": -1,
+    "random_state": 42,
+    "verbose": 0,
+    "warm_start": false
+  },
+  "calibrator_class": "<class 'src.afozt.calibration.QuantileCalibrator'>"
+}
