@@ -7,6 +7,7 @@ from typing import Dict, List, Optional, Sequence, Tuple
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import IsolationForest
+from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import RobustScaler
 
 from src.afozt.calibration import QuantileCalibrator
@@ -71,6 +72,14 @@ class BrainConfig:
     anomaly_feature_cols: Optional[List[str]] = None
 
 
+
+    # Optional: supervised fusion to improve precision/FPR when labels exist (offline eval).
+    # Trains a lightweight Logistic Regression on component scores.
+    use_supervised_fusion: bool = True
+    fusion_C: float = 1.0
+    fusion_max_iter: int = 2000
+    fusion_class_weight: Optional[str] = "balanced"
+    fusion_min_samples: int = 2000
 class UnifiedDecisionBrain:
     """Step 2.5: Risk/Trust scoring + Confidence + Rationale Output.
 
@@ -93,6 +102,9 @@ class UnifiedDecisionBrain:
             n_jobs=-1,
         )
         self.calibrator = QuantileCalibrator()
+        # Optional supervised fusion (trained only if labels exist)
+        self.fusion_model = None
+        self.fusion_feature_names_: List[str] = []
         self.feature_cols_: List[str] = []
 
     @staticmethod
@@ -161,6 +173,47 @@ class UnifiedDecisionBrain:
             f"contamination={self.cfg.iforest_contamination}"
         )
 
+
+        # Optional: supervised fusion (offline). Uses the FULL training slice (including attacks)
+        # and combines component scores into a calibrated probability of attack.
+        self.fusion_model = None
+        self.fusion_feature_names_ = []
+        if self.cfg.use_supervised_fusion and "label_attack" in df_train.columns:
+            try:
+                y = pd.to_numeric(df_train["label_attack"], errors="coerce").fillna(0).astype(int).values
+                if int(y.sum()) > 0 and len(y) >= int(self.cfg.fusion_min_samples):
+                    df_all = df_train.copy()
+                    s_anom_all = self._score_anomaly(df_all)
+                    s_rule_all, _ = self._score_rules(df_all)
+                    s_graph_all, _ = self._score_graph(df_all)
+
+                    z_base = (
+                        self.cfg.w_anom * s_anom_all
+                        + self.cfg.w_rule * s_rule_all
+                        + self.cfg.w_graph * s_graph_all
+                        + self.cfg.bias
+                    )
+                    risk_base = sigmoid(z_base)
+
+                    X = np.vstack([s_anom_all, s_rule_all, s_graph_all, risk_base]).T
+                    X = np.nan_to_num(X, nan=0.0, posinf=1.0, neginf=0.0)
+
+                    lr = LogisticRegression(
+                        C=float(self.cfg.fusion_C),
+                        max_iter=int(self.cfg.fusion_max_iter),
+                        class_weight=self.cfg.fusion_class_weight,
+                        solver="lbfgs",
+                    )
+                    lr.fit(X, y)
+                    self.fusion_model = lr
+                    self.fusion_feature_names_ = ["s_anom", "s_rule", "s_graph", "risk_base"]
+                    self.logger.info(
+                        f"✅ Trained supervised fusion (LogReg) on n={len(y)} (attacks={int(y.sum())})."
+                    )
+                else:
+                    self.logger.info("Skipped supervised fusion: not enough labeled samples or attacks in train slice.")
+            except Exception as e:
+                self.logger.warning(f"Supervised fusion training failed (falling back to hybrid weights): {e}")
     def _score_anomaly(self, df: pd.DataFrame) -> np.ndarray:
         X = df[self.feature_cols_].apply(pd.to_numeric, errors="coerce").fillna(0.0).to_numpy(dtype=float)
         Xs = self.scaler.transform(X)
@@ -298,9 +351,27 @@ class UnifiedDecisionBrain:
             + self.cfg.w_graph * s_graph
             + self.cfg.bias
         )
-        risk = sigmoid(z)
+        risk_base = sigmoid(z)
 
-        conf = self._confidence(s_anom, s_rule, s_graph)
+        conf_base = self._confidence(s_anom, s_rule, s_graph)
+
+        # If supervised fusion exists, use it as the final risk probability.
+        if getattr(self, 'fusion_model', None) is not None:
+            try:
+                X = np.vstack([s_anom, s_rule, s_graph, risk_base]).T
+                X = np.nan_to_num(X, nan=0.0, posinf=1.0, neginf=0.0)
+                prob = self.fusion_model.predict_proba(X)[:, 1]
+                risk = np.clip(prob.astype(float), 0.0, 1.0)
+                conf_fusion = np.clip(2.0 * np.abs(risk - 0.5), 0.0, 1.0)
+                conf = np.clip(0.5 * conf_base + 0.5 * conf_fusion, 0.0, 1.0)
+            except Exception as e:
+                self.logger.warning(f'Fusion inference failed; using hybrid weights instead: {e}')
+                risk = risk_base
+                conf = conf_base
+        else:
+            risk = risk_base
+            conf = conf_base
+
         decision = self._decision(risk, conf)
 
         rationale_tags: List[str] = []
@@ -356,6 +427,8 @@ class UnifiedDecisionBrain:
             "scaler": self.scaler,
             "iforest": self.iforest,
             "calibrator": self.calibrator,
+            "fusion_model": getattr(self, "fusion_model", None),
+            "fusion_feature_names": getattr(self, "fusion_feature_names_", []),
         }
 
     @staticmethod
@@ -366,4 +439,6 @@ class UnifiedDecisionBrain:
         brain.scaler = artifact["scaler"]  # type: ignore[assignment]
         brain.iforest = artifact["iforest"]  # type: ignore[assignment]
         brain.calibrator = artifact["calibrator"]  # type: ignore[assignment]
+        brain.fusion_model = artifact.get("fusion_model", None)  # type: ignore[assignment]
+        brain.fusion_feature_names_ = list(artifact.get("fusion_feature_names", []))
         return brain

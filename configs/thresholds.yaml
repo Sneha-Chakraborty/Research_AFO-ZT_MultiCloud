@@ -1,8 +1,7 @@
-allow_lt: 0.544732
-stepup_lt: 0.544732
-restrict_lt: 0.623730
-deny_lt: 0.633345
+allow_lt: 0.948470
+stepup_lt: 0.948470
+restrict_lt: 0.978986
+deny_lt: 0.986906
 
 # Confidence gating (tune later; your confidence median ~0.27)
-# min_conf_for_hard_actions: 0.25
-min_conf_for_hard_actions: 0.35
+min_conf_for_hard_actions: 0.25

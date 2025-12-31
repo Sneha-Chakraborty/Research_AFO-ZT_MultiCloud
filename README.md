@@ -73,3 +73,38 @@ python scripts/run_all_and_compare.py
 Outputs:
 - `outputs/results/metrics_summary_step4.csv`
 - `outputs/results/confusion_matrices_step4.json`
+
+
+## Step 5 — Your AFO-ZT (Unified Brain) end-to-end
+
+One command (runs Steps 2.2 → 2.8 in order):
+
+```bash
+python scripts/run_afozt_full.py
+```
+
+Force rebuild of intermediate artifacts (normalize/graph/features):
+
+```bash
+python scripts/run_afozt_full.py --rebuild
+```
+
+Key outputs (generated/overwritten):
+
+- `data/processed/unified_telemetry.csv`
+- `outputs/models/trust_graph.sqlite`
+- `data/processed/features.parquet` (and `features.csv`)
+- `outputs/results/afozt_scores.csv` (Step 2.5)
+- `configs/thresholds.yaml` + `outputs/results/afozt_scores_with_tuned_decisions.csv` (Step 2.6)
+- `outputs/results/rollout_timeline.csv`, `outputs/results/rollout_decisions.csv`, `outputs/results/rollout_metrics.json` (Step 2.7)
+- `outputs/results/action_executions_rollout.jsonl`, `outputs/results/response_times.csv`, `outputs/results/latency_stats.json` (Step 2.8)
+- `outputs/results/afozt_full_run_summary.json` (final combined summary)
+
+Optional: check your requested metric targets:
+
+```bash
+python scripts/check_afozt_targets.py
+```
+
+Outputs:
+- `outputs/results/afozt_target_check.json`
