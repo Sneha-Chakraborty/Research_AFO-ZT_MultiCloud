@@ -1,0 +1,4 @@
+stage,start_index,end_index,n_events,budgets_ok,reasons
+shadow,0,25044,25044,True,
+canary,25044,35736,10692,True,
+enforce,35736,46455,10719,False,MFA friction 0.1793 > 0.1700

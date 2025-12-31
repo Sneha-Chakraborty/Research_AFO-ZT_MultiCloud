@@ -4,6 +4,7 @@ Implemented:
 - Static RBAC/ABAC-like rules baseline
 - SIEM threshold/correlation rules baseline
 - Base-paper-style RAAC + Isolation Forest baseline (with SOAR-style decision mapping)
+- Per-cloud brains baseline (one analytics model per provider)
 
 Each baseline reads the same unified telemetry CSV and outputs the same decision fields,
 so evaluation stays apples-to-apples.
@@ -12,6 +13,7 @@ so evaluation stays apples-to-apples.
 from .static_rules import StaticRulesBaseline, StaticRulesConfig
 from .siem_rules import SiemRulesBaseline, SiemRulesConfig
 from .raac_iforest import RaacIForestBaseline, RaacIForestConfig
+from .per_cloud_brains import PerCloudBrainsBaseline, PerCloudBrainsConfig
 
 __all__ = [
     "StaticRulesBaseline",
@@ -20,4 +22,6 @@ __all__ = [
     "SiemRulesConfig",
     "RaacIForestBaseline",
     "RaacIForestConfig",
+    "PerCloudBrainsBaseline",
+    "PerCloudBrainsConfig",
 ]

@@ -1,139 +1,120 @@
-################################################################################
-# Research_AFO-ZT_MultiCloud — .gitignore
-# (after RAAC Isolation Forest baseline; tuned for your folders: .venv/, outputs/, data/)
-################################################################################
-
-# ----------------------------
-# Python bytecode / caches
-# ----------------------------
+############################################
+# Python / Virtualenv
+############################################
 __pycache__/
-**/__pycache__/
 *.py[cod]
 *$py.class
 
-# Type check / lint / test caches
-.mypy_cache/
-.pytest_cache/
-.ruff_cache/
-.pyre/
-.pytype/
-.dmypy.json
-
-# Coverage / test reports
-.coverage
-.coverage.*
-coverage.xml
-htmlcov/
-nosetests.xml
-test-results/
-junit*.xml
-
-# Jupyter
-.ipynb_checkpoints/
-
-# ----------------------------
-# Virtual environments
-# ----------------------------
 .venv/
 venv/
-env/
 ENV/
-.conda/
-.egg-cache/
+env/
 
-# dotenv / secrets
-.env
-.env.*
-*.env
-
-# ----------------------------
-# Build / packaging artifacts
-# ----------------------------
+# Packaging / builds
 build/
 dist/
 *.egg-info/
 .eggs/
 pip-wheel-metadata/
-wheels/
-MANIFEST
 
-# ----------------------------
-# IDE / OS clutter
-# ----------------------------
+# Testing / typecheck / lint caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+.coverage
+coverage.xml
+htmlcov/
+
+# Jupyter
+.ipynb_checkpoints/
+
+############################################
+# IDEs / Editors
+############################################
 .vscode/
 .idea/
-*.code-workspace
+*.iml
 
+############################################
+# OS junk
+############################################
 .DS_Store
 Thumbs.db
 Desktop.ini
 
-# Editors
-*~
-*.swp
-*.swo
+############################################
+# Secrets / local env files
+############################################
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
 
-# ----------------------------
-# Data artifacts (generated)
-# Keep schemas tracked; ignore processed datasets that are re-creatable.
-# ----------------------------
-data/processed/
-data/processed/*.csv
-data/processed/*.parquet
-
-# (Optional) If your raw CSV is large or re-generatable, uncomment next line:
-# data/raw/
-
-# ----------------------------
-# Outputs (generated artifacts)
-# Your repo has outputs/models/*.pkl and trust_graph.sqlite* and outputs/results/*.csv/.jsonl
-# ----------------------------
-
-# Figures/logs are generated
-outputs/figures/
-outputs/logs/
-
-# Models: ignore heavy binaries
-outputs/models/*.pkl
-outputs/models/*.pickle
-outputs/models/*.joblib
-outputs/models/*.sav
-
-# SQLite trust graph and any sqlite DBs
-outputs/models/*.sqlite
-outputs/models/*.sqlite-*
-outputs/models/*.sqlite-wal
-outputs/models/*.sqlite-shm
-outputs/models/*.db
-outputs/models/*.db-*
-outputs/models/*.db-wal
-outputs/models/*.db-shm
-
-# But keep small metadata you intentionally generate
-!outputs/models/*.manifest.json
-!outputs/models/*_preview.json
-!outputs/models/**/*.manifest.json
-!outputs/models/**/*_preview.json
-
-# Results: ignore generated logs + heavy per-event outputs
-outputs/results/*.jsonl
-outputs/results/*.log
-
-# Ignore all CSV/JSON results by default (they are regenerated)
-outputs/results/*.csv
-outputs/results/*.json
-
-# But keep compact “summary” artifacts that are safe to version
-!outputs/results/metrics_summary*.csv
-!outputs/results/confusion_matrices*.json
-!outputs/results/latency_stats.json
-!outputs/results/rollout_metrics.json
-
-# ----------------------------
-# Misc
-# ----------------------------
-tmp/
-temp/
-.cache/
-logs/
+############################################
+# Logs / temp files
+############################################
 *.log
+*.tmp
+*.bak
+*.swp
+
+############################################
+# Data artifacts (generated / large)
+# Keep schemas, ignore raw + processed by default
+############################################
+/data/raw/
+/data/processed/
+
+# But DO keep schemas/docs inside data/schemas
+!/data/schemas/
+!/data/schemas/**
+
+############################################
+# Outputs (generated artifacts)
+# Ignore everything in outputs by default
+############################################
+/outputs/*
+
+# Allow the results folder ONLY for lightweight summaries (optional)
+!/outputs/results/
+# Keep only small “summary” artifacts (safe to version)
+!/outputs/results/metrics_summary*.csv
+!/outputs/results/latency_stats*.json
+!/outputs/results/confusion_matrices*.json
+!/outputs/results/rollout_metrics*.json
+!/outputs/results/rollout_timeline*.csv
+!/outputs/results/rollout_decisions*.csv
+
+# Explicitly block known-large outputs (even if you later change rules)
+outputs/results/policy_actions.csv
+outputs/results/action_executions*.jsonl
+
+############################################
+# Models / Databases (ALWAYS generated, often huge)
+############################################
+# Block model pickles and sqlite DBs
+outputs/models/*.pkl
+outputs/models/*.joblib
+outputs/models/*.sqlite
+outputs/models/*.db
+
+# SQLite side files
+*.sqlite-wal
+*.sqlite-shm
+*.sqlite-journal
+
+############################################
+# If you ever add large artifacts elsewhere
+############################################
+*.parquet
+*.feather
+*.h5
+*.hdf5
+*.onnx
+*.pt
+*.pth
+*.ckpt

@@ -21,9 +21,10 @@ def main() -> None:
     ap.add_argument("--static-scores", default=str(RESULTS_DIR / "baseline_static_scores.csv"))
     ap.add_argument("--siem-scores", default=str(RESULTS_DIR / "baseline_siem_scores.csv"))
     ap.add_argument("--raac-scores", default=str(RESULTS_DIR / "baseline_raac_iforest_scores.csv"))
+    ap.add_argument("--percloud-scores", default=str(RESULTS_DIR / "baseline_per_cloud_scores.csv"))
     ap.add_argument("--afozt-scores", default=str(RESULTS_DIR / "afozt_scores_with_tuned_decisions.csv"))
-    ap.add_argument("--out-summary", default=str(RESULTS_DIR / "metrics_summary_step3.csv"))
-    ap.add_argument("--out-confusions", default=str(RESULTS_DIR / "confusion_matrices_step3.json"))
+    ap.add_argument("--out-summary", default=str(RESULTS_DIR / "metrics_summary_step4.csv"))
+    ap.add_argument("--out-confusions", default=str(RESULTS_DIR / "confusion_matrices_step4.json"))
     args = ap.parse_args()
 
     ensure_dirs()
@@ -56,6 +57,15 @@ def main() -> None:
         logger.warning(
             f"Missing RAAC+IForest baseline scores: {raac_path} "
             f"(run: python scripts/run_baselines.py --baseline raac_iforest)"
+        )
+
+    percloud_path = Path(args.percloud_scores)
+    if percloud_path.exists():
+        runs.append(BaselineRun(name="baseline_per_cloud_brains", scores_csv=percloud_path))
+    else:
+        logger.warning(
+            f"Missing per-cloud brains baseline scores: {percloud_path} "
+            f"(run: python scripts/run_baselines.py --baseline per_cloud)"
         )
 
     afozt_path = Path(args.afozt_scores)
