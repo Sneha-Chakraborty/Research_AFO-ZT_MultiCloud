@@ -38,6 +38,48 @@ class SimulatedOrchestrator:
     def __init__(self, config: Optional[OrchestratorConfig] = None) -> None:
         self.cfg = config or OrchestratorConfig()
 
+
+def action_latency(self, action_type: ActionType | str) -> float:
+    """Return simulated latency (seconds) for a single action type.
+
+    This is used by evaluation/response_time.py to estimate response times
+    without executing orchestration.
+    """
+    # Normalize to ActionType
+    t: ActionType
+    try:
+        if isinstance(action_type, ActionType):
+            t = action_type
+        else:
+            s = str(action_type)
+            try:
+                t = ActionType(s)          # matches enum values like "deny"
+            except Exception:
+                t = ActionType[s]          # matches enum names like "DENY"
+    except Exception:
+        return 0.05
+
+    if t == ActionType.STEP_UP_MFA:
+        return float(self.cfg.step_up_mfa_s)
+    if t == ActionType.SHORTEN_SESSION:
+        return float(self.cfg.shorten_session_s)
+    if t == ActionType.RESTRICT_TOKEN_SCOPE:
+        return float(self.cfg.restrict_scope_s)
+    if t == ActionType.ISOLATE_SEGMENT:
+        return float(self.cfg.isolate_segment_s)
+    if t == ActionType.REVOKE_TOKEN:
+        return float(self.cfg.revoke_token_s)
+    if t == ActionType.QUARANTINE_ENDPOINT:
+        return float(self.cfg.quarantine_endpoint_s)
+    if t == ActionType.ALERT:
+        return float(self.cfg.alert_s)
+    if t == ActionType.SOAR_PLAYBOOK:
+        return float(self.cfg.soar_playbook_s)
+    if t == ActionType.DENY:
+        return float(self.cfg.deny_s)
+    if t == ActionType.ALLOW:
+        return 0.0
+    return 0.05
     def _latency_for(self, a: CloudAction) -> float:
         t = a.action_type
         if t == ActionType.STEP_UP_MFA:

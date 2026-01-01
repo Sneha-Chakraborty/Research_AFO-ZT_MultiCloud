@@ -1,0 +1,18 @@
+default:
+  processing_delay_s: 0.0
+profiles:
+  baseline_static:
+    processing_delay_s: 0.6
+    notes: Static policy evaluation + IAM lookup overhead
+  baseline_siem:
+    processing_delay_s: 1.5
+    notes: Correlation window + rule evaluation
+  baseline_raac_iforest:
+    processing_delay_s: 0.4
+    notes: Model inference + feature prep
+  baseline_per_cloud_brains:
+    processing_delay_s: 0.55
+    notes: Provider routing + per-cloud model inference
+  afozt:
+    processing_delay_s: 0.2
+    notes: Unified brain + graph feature lookup

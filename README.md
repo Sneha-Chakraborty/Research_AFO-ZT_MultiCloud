@@ -1,110 +1,57 @@
-# AFO-ZT Prototype (Multi-cloud)
+# Research_AFO-ZT_MultiCloud (Simulation Prototype)
 
-## Step 2.2 — Normalize into a Unified Telemetry Schema
+This repo contains a **CPU-friendly simulation** + baselines + **AFO‑ZT unified brain** for multi‑cloud (AWS/Azure/GCP).
+It generates synthetic access events, scores them, compiles policy intents, runs a safe rollout (shadow→canary→enforce→rollout),
+executes simulated SOAR actions, and then computes a **final metrics summary** + plots.
 
-Input (raw):
-- `data/raw/afozt_multicloud_logs_50k.csv`
+## Quick start (Windows)
 
-Output (unified):
-- `data/processed/unified_telemetry.csv`
-
-Run:
-```bash
-python scripts/normalize_logs.py
+### 1) Create venv + install
+```bat
+python -m venv .venv
+.venv\Scripts\activate
+python -m pip install -r requirements.txt
 ```
 
-Custom paths:
-```bash
-python scripts/normalize_logs.py --input data/raw/afozt_multicloud_logs_50k.csv --output data/processed/unified_telemetry.csv
+### 2) Generate dataset + features (only once)
+```bat
+python scripts\generate_data.py
+python scripts\normalize_logs.py
+python scripts\build_features.py
+python scripts\build_trust_graph.py
 ```
 
-## Step 3 — Baselines
-
-### 1) Static rules (RBAC/ABAC-like)
-
-```bash
-python scripts/run_baselines.py --baseline static
+### 3) Run baselines (Static, SIEM, RAAC+IForest, Per-cloud brains)
+```bat
+python scripts\run_baselines.py
 ```
 
-Outputs:
-- `outputs/results/baseline_static_scores.csv`
-- `outputs/models/baseline_static.pkl`
-
-### 2) SIEM rules (threshold + correlation)
-
-```bash
-python scripts/run_baselines.py --baseline siem
+### 4) Run AFO‑ZT unified brain (full pipeline: fit → score → tune → rollout → orchestration)
+```bat
+python scripts\run_afozt_full.py --mfa-rate 0.003 --fpr-restrict 0.001 --fpr-deny 0.0005
 ```
 
-Outputs:
-- `outputs/results/baseline_siem_scores.csv`
-- `outputs/models/baseline_siem.pkl`
-
-### 3) Base-paper style (RAAC + Isolation Forest + SOAR mapping)
-
-```bash
-# optionally create a train/test split first
-python scripts/split_train_test.py
-
-python scripts/run_baselines.py --baseline raac_iforest
+### 5) Compute final metrics (all engines)
+```bat
+python scripts\run_final_metrics.py --only-non-allow-latency --write-latencies
 ```
 
 Outputs:
-- `outputs/results/baseline_raac_iforest_scores.csv`
-- `outputs/models/baseline_raac_iforest.pkl`
+- `outputs/results/final_metrics_summary.csv` (main comparison table)
+- `outputs/results/final_metrics_rows.json` (full per-engine JSON)
+- `outputs/results/final_metrics_*.json` (per-engine detailed metrics)
+- `outputs/results/latency_stats_*.json` (per-engine latency summary, if enabled)
 
-### 4) Per-cloud brains (separate analytics per provider)
-
-```bash
-python scripts/run_baselines.py --baseline per_cloud
+### 6) Plot graphs (PNG)
+```bat
+python scripts\plot_final_metrics.py
 ```
 
-Outputs:
-- `outputs/results/baseline_per_cloud_scores.csv`
-- `outputs/models/baseline_per_cloud.pkl`
-- (best-effort) `outputs/models/baseline_per_cloud_<provider>.pkl`
+This writes PNGs into `outputs/plots/` and a compact CSV you can paste into your paper.
 
-### Compare baselines vs AFO-ZT
+## Notes
 
-```bash
-python scripts/run_all_and_compare.py
-```
+- **Cross-cloud detection rate** now uses a robust fallback: if the score file does not contain the generator’s cross‑cloud flag,
+  the metric is derived from grouping by session/principal and checking if that entity touched **>1 cloud provider**.
+- **Blast radius reduction** uses a blast feature when present; otherwise it uses a conservative pivot‑score proxy.
 
-Outputs:
-- `outputs/results/metrics_summary_step4.csv`
-- `outputs/results/confusion_matrices_step4.json`
-
-
-## Step 5 — Your AFO-ZT (Unified Brain) end-to-end
-
-One command (runs Steps 2.2 → 2.8 in order):
-
-```bash
-python scripts/run_afozt_full.py
-```
-
-Force rebuild of intermediate artifacts (normalize/graph/features):
-
-```bash
-python scripts/run_afozt_full.py --rebuild
-```
-
-Key outputs (generated/overwritten):
-
-- `data/processed/unified_telemetry.csv`
-- `outputs/models/trust_graph.sqlite`
-- `data/processed/features.parquet` (and `features.csv`)
-- `outputs/results/afozt_scores.csv` (Step 2.5)
-- `configs/thresholds.yaml` + `outputs/results/afozt_scores_with_tuned_decisions.csv` (Step 2.6)
-- `outputs/results/rollout_timeline.csv`, `outputs/results/rollout_decisions.csv`, `outputs/results/rollout_metrics.json` (Step 2.7)
-- `outputs/results/action_executions_rollout.jsonl`, `outputs/results/response_times.csv`, `outputs/results/latency_stats.json` (Step 2.8)
-- `outputs/results/afozt_full_run_summary.json` (final combined summary)
-
-Optional: check your requested metric targets:
-
-```bash
-python scripts/check_afozt_targets.py
-```
-
-Outputs:
-- `outputs/results/afozt_target_check.json`
