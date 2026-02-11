@@ -42,10 +42,10 @@ Outputs:
 - `outputs/results/final_metrics_*.json` (per-engine detailed metrics)
 - `outputs/results/latency_stats_*.json` (per-engine latency summary, if enabled)
 
-### 6) Plot graphs (PNG)
+<!-- ### 6) Plot graphs (PNG)
 ```bat
 python scripts\plot_final_metrics.py
-```
+``` -->
 
 This writes PNGs into `outputs/plots/` and a compact CSV you can paste into your paper.
 
